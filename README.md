@@ -2,7 +2,7 @@
 
 Thanks Rixi for providing the code!
 
-## usage
+## Usage
 
 1. Download Arduino IDE and Git (Git preinstalled on mac)
 2. Find the folder where Arduino sketches are in, right click and open git bash (Windows) or terminal window (mac)
@@ -14,5 +14,7 @@ Thanks Rixi for providing the code!
 - To commit and push your changes to the github:
 
 `git add . `
+
 `git commit -m "Your Commit Message Here"`
+
 `git push`
