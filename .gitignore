@@ -1,0 +1,21 @@
+# Compiled files
+*.hex
+*.elf
+*.bin
+*.eep
+*.dmp
+
+# Arduino build folders (temporary)
+build/
+*.pio/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# VS Code or IDE settings (if some teammates use VS Code / PlatformIO)
+.vscode/
+.idea/
+
+# Arduino libraries folder (let teammates install locally instead)
+libraries/
