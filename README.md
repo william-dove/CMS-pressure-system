@@ -1,8 +1,10 @@
 # CMS pressure system code
 
-## usage
+Thanks Rixi for providing the code!
 
-1. Download Arduino IDE/Git (Git preinstalled on mac)
+## Usage
+
+1. Download Arduino IDE and Git (Git preinstalled on mac)
 2. Find the folder where Arduino sketches are in, right click and open git bash (Windows) or terminal window (mac)
 3. run `git clone https://github.com/william-dove/CMS-pressure-system.git`
 
@@ -12,5 +14,7 @@
 - To commit and push your changes to the github:
 
 `git add . `
+
 `git commit -m "Your Commit Message Here"`
+
 `git push`
