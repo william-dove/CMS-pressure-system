@@ -18,7 +18,3 @@ Thanks Rixi for providing the code!
 `git commit -m "Your Commit Message Here"`
 
 `git push`
-
-
-Rixi test message for git push
-
