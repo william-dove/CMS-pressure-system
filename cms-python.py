@@ -2,6 +2,12 @@
 import serial
 from serial.tools import list_ports
 import time
+import threading
+import queue
+
+# Loops will run across all threads when running is set.
+running = threading.Event()
+running.set()
 
 # ----------Functions-------------
 
@@ -26,25 +32,47 @@ def write_read(serial_test_var):
     return data_string 
 
 def send_command(cmd):
-    """
+    '''
     Sends a command string to the Arduino and prints any response.
-    """
+    '''
     arduino.write(f'{cmd}\n'.encode())
     time.sleep(0.05)
     if arduino.in_waiting:
         response = arduino.readline().decode().strip()
         print(response)
 
+def wait(duration):
+    '''
+    Creates a timer on a seperate thread to wait the proper time before the next stage.
+    '''
+    print(f'Waiting {duration} seconds before next stage...')
+    def timer():
+        time.sleep(duration)
+        print("Ready for next stage!")
+    timer_thread = threading.Thread(target=timer, daemon=True)
+    timer_thread.start()
+
 # ----------Commands--------------------- 
 
-def cmd_test():
+def cmd_test_arduino():
     arduino.write(b'test\n')
     time.sleep(0.05) # Wait for arduino to receive command
     in_value = input("Enter a number: ") # Taking input from user 
     out_value = write_read(in_value) 
-    print(out_value) # printing the value     
+    print(out_value) # printing the value  
+
 def cmd_stop():
-    exit()
+    '''
+    Stops everything safely
+    '''
+    print('Exiting...')
+    running.clear() # Break all loops across threads
+    # Later: Add what we want emergency stop to do here (e.g. depressurize)
+    if arduino.is_open:
+        arduino.close()
+    return # Once this function returns, the main loop ends therefore main thread ends.
+    
+'''Open and close valves'''
 def cmd_automated():
     send_command('automated')
 def cmd_open_vacuum():
@@ -61,9 +89,8 @@ def cmd_close_release():
     send_command("close release")
 
 # Command name dictionary
-
 commands = {
-    "test": cmd_test,
+    "test arduino": cmd_test_arduino,
     "automated": cmd_automated,
     "stop": cmd_stop,
     "open vacuum": cmd_open_vacuum,
@@ -74,7 +101,8 @@ commands = {
     "close release": cmd_close_release,
 }
 
-# ---------MAIN CODE-------------
+
+# ---------Setup-------------
 
 # Find the serial port with the arduino
 port = find_arduino()
@@ -85,16 +113,28 @@ if port:
     print("Found Arduino on", port)
 else:
     print("Arduino not found.")
-    input("Press Enter to exit...")
-    cmd_stop()
+    #input("Press Enter to exit...")
+    #cmd_stop()
 
-# Loop
-while True: 
-    command = input('>')
+# Handle inputs on a seperate thread
+command_queue = queue.Queue()
+def input_loop():
+    '''
+    Waits for commands and adds them to the queue for the main thread to execute
+    '''
+    while running.is_set(): 
+        command = input('>')
+        command_queue.put(command) # Queue is such a weirdly spelled word
+        
+input_thread = threading.Thread(target=input_loop)
+input_thread.start()
+
+# -----------Main Thread Loop----------------
+
+while running.is_set():
+    command = command_queue.get()
     cmd_func = commands.get(command)
     if cmd_func:
         cmd_func()
     else:
         print("Unknown command.")
-
-
